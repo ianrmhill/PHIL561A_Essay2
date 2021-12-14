@@ -1,0 +1,135 @@
+"""Script to generate figures used in my essay on D'Ignazio and Klein's book Data Feminism"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+plt.style.use('ggplot')
+
+# noinspection PyDictCreation
+concepts = {}
+categories = ['Clear', 'Measurable', 'Actionable', 'Relevant', 'Incorruptible', 'Affective']
+
+# Scoring inputs for the "data justice" guiding concepts
+concepts["Justice"]             = [0.8, 0.3, 0.7, 0.2, 0.2, 0.9]
+concepts["Oppression"]          = [0.2, 0.5, 0.4, 0.2, 0.8, 0.9]
+concepts["Equity"]              = [0.8, 0.6, 0.8, 0.7, 0.6, 0.6]
+concepts["Co-liberation"]       = [0.2, 0.1, 0.1, 0.3, 0.8, 1.0]
+concepts["Reflexivity"]         = [0.3, 0.3, 0.6, 0.2, 0.3, 0.4]
+concepts["Understand H-C-C"]    = [0.9, 0.4, 0.3, 0.3, 0.4, 0.4]
+
+# Scoring inputs for the "data ethics" guiding concepts
+concepts["Ethics"]              = [0.6, 0.3, 0.5, 0.6, 0.6, 0.4]
+concepts["Bias"]                = [0.8, 0.6, 0.5, 0.8, 0.7, 0.3]
+concepts["Fairness"]            = [0.9, 0.6, 0.7, 0.5, 0.8, 0.6]
+concepts["Accountability"]      = [0.8, 0.7, 0.6, 0.8, 1.0, 0.3]
+concepts["Transparency"]        = [0.9, 0.8, 0.9, 0.9, 1.0, 0.2]
+concepts["Understand Algos"]    = [0.9, 0.8, 0.3, 1.0, 0.5, 0.1]
+
+# Scoring inputs for the "principles of data feminism" guiding concepts
+concepts["Examine Power"]       = [0.7, 0.3, 0.5, 0.3, 0.7, 0.6]
+concepts["Challenge Power"]     = [0.8, 0.4, 0.7, 0.4, 0.4, 0.8]
+concepts["Elevate Emotion"]     = [0.9, 0.6, 0.8, 0.3, 0.1, 0.9]
+concepts["Rethink Hierarchies"] = [0.5, 0.3, 0.6, 0.7, 0.6, 0.5]
+concepts["Embrace Pluralism"]   = [0.4, 0.8, 0.5, 0.8, 0.9, 0.5]
+concepts["Consider Context"]    = [0.7, 0.2, 0.5, 0.9, 0.3, 0.3]
+concepts["Make Labor Visible"]  = [1.0, 0.8, 0.9, 0.7, 0.9, 0.4]
+
+# Begin setting up the radar chart structure, must duplicate the final value of each array first
+angles = np.array(np.linspace(0, 2*np.pi, len(categories), endpoint=False))
+angles = np.append(angles, angles[0])
+categories = np.append(categories, categories[0])
+for key in concepts:
+    concepts[key] = np.append(concepts[key], concepts[key][0])
+
+# Generate Figure 1
+fig1 = plt.figure(figsize=(12, 8))
+data_justice = ["Justice", "Oppression", "Equity", "Co-liberation", "Reflexivity", "Understand H-C-C"]
+n = 1
+for key in data_justice:
+    ax = fig1.add_subplot(230 + n, polar=True)
+    n += 1
+    ax.set_ylim(0, 1)
+    ax.tick_params(axis='y', labelsize=5)
+    ax.plot(angles, concepts[key], '.-', color='xkcd:orchid', linewidth=0.5, label=key)
+    ax.fill(angles, concepts[key], alpha=0.25, color='xkcd:orchid')
+    ax.set_thetagrids(angles * 180/np.pi, categories)
+    ax.tick_params(axis='x', labelsize=6)
+    ax.set_title(key, y=1.04, fontdict={'fontsize': 10})
+plt.grid(True)
+plt.tight_layout()
+plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
+
+# Generate Figure 2
+fig2 = plt.figure(figsize=(12, 8))
+data_ethics = ["Ethics", "Bias", "Fairness", "Accountability", "Transparency", "Understand Algos"]
+n = 1
+for key in data_justice:
+    ax = fig2.add_subplot(230 + n, polar=True)
+    ax.set_ylim(0, 1)
+    ax.tick_params(axis='y', labelsize=5)
+    ax.plot(angles, concepts[key], '.-', color='xkcd:lavender', linewidth=0.5, label=key)
+    ax.fill(angles, concepts[key], alpha=0.25, color='xkcd:lavender')
+    ax.plot(angles, concepts[data_ethics[n-1]], '.-', color='xkcd:royal blue', linewidth=0.5, label=data_ethics[n-1])
+    ax.fill(angles, concepts[data_ethics[n-1]], alpha=0.15, color='xkcd:royal blue')
+    ax.set_thetagrids(angles * 180/np.pi, categories)
+    ax.tick_params(axis='x', labelsize=6)
+    # More complex title creation used to include color legend in title
+    if n in range(1, 4):
+        fig2.text(-0.15 + n*0.292, 0.92, key, ha="center", va="bottom", size="medium", color="xkcd:lavender")
+        fig2.text(-0.08 + n*0.292, 0.92, " vs. ", ha="center", va="bottom", size="medium")
+        fig2.text(-0.01 + n*0.292, 0.92, data_ethics[n-1], ha="center", va="bottom", size="medium", color="xkcd:royal blue")
+    else:
+        fig2.text(-0.15 + (n-3)*0.292, 0.46, key, ha="center", va="bottom", size="medium", color="xkcd:lavender")
+        fig2.text(-0.08 + (n-3)*0.292, 0.46, " vs. ", ha="center", va="bottom", size="medium")
+        fig2.text(-0.01 + (n-3)*0.292, 0.46, data_ethics[n-1], ha="center", va="bottom", size="medium", color="xkcd:royal blue")
+    n += 1
+plt.grid(True)
+plt.tight_layout()
+plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
+
+# Generate Figure 3
+fig3 = plt.figure(figsize=(12, 12))
+data_feminism = ["Examine Power", "Challenge Power", "Elevate Emotion", "Rethink Hierarchies", "Embrace Pluralism",
+                 "Consider Context", "Make Labor Visible"]
+n = 1
+for key in data_feminism:
+    if n != 7:
+        ax = fig3.add_subplot(330 + n, polar=True)
+    else:
+        ax = fig3.add_subplot(338, polar=True)
+    ax.set_ylim(0, 1)
+    ax.tick_params(axis='y', labelsize=5)
+    ax.plot(angles, concepts[key], '.-', color='xkcd:orange', linewidth=0.5, label=key)
+    ax.fill(angles, concepts[key], alpha=0.25, color='xkcd:orange')
+    ax.set_thetagrids(angles * 180/np.pi, categories)
+    ax.tick_params(axis='x', labelsize=6)
+    ax.set_title(key, y=1.04, fontdict={'fontsize': 10})
+    n += 1
+plt.grid(True)
+plt.tight_layout()
+plt.subplots_adjust(left=0.1, bottom=0.05, right=0.9, top=0.95, wspace=0.4, hspace=0.4)
+
+# Compute and print the average filled hexagonal areas for each set
+avg_area_justice = 0
+for key in data_justice:
+    for n in range(1, len(concepts[key])):
+        # Since the inner angle is always 60 degrees (for our hexagons), we can easily compute our triangle areas
+        avg_area_justice += 0.5*np.sin(np.pi/3)*concepts[key][n-1]*concepts[key][n]
+avg_area_justice /= len(data_justice)
+print(f"Average area of data justice charts: {avg_area_justice}")
+
+avg_area_ethics = 0
+for key in data_ethics:
+    for n in range(1, len(concepts[key])):
+        avg_area_ethics += 0.5*np.sin(np.pi/3)*concepts[key][n-1]*concepts[key][n]
+avg_area_ethics /= len(data_ethics)
+print(f"Average area of data ethics charts: {avg_area_ethics}")
+
+avg_area_feminism = 0
+for key in data_feminism:
+    for n in range(1, len(concepts[key])):
+        avg_area_feminism += 0.5*np.sin(np.pi/3)*concepts[key][n-1]*concepts[key][n]
+avg_area_feminism /= len(data_feminism)
+print(f"Average area of data justice charts: {avg_area_feminism}")
+
+plt.show()
